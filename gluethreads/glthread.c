@@ -1,47 +1,87 @@
-#ifndef __GLUETHREAD__
-#define __GLUETHREAD__
+#include "glthread.h"
+#include "stdlib.h"
 
-#define uint unsigned int
-typedef struct glthread_node {
-  glthread_node *left;
-  glthread_node *right;
-} glthread_t;
-
-
-void glthread_add_next(glthread_t* base_thread, glthread_t* next_thread); //add next_thread after base_thread
-void glthread_add_before(glthread_t* base_thread, glthread_t* next_thread); //add next_thread before base_thread;
-void remove_glthread(glthread_t* glthread); //remove glthread
-void add_last_glthread(glthread_t* base_thread, glthread_t* next_thread); //add glthread to end of list
-void init_glthread(glthread_t* head);
-
-#define IS_GLTHREADLIST_EMPTY(head) ((head->right == 0 && head->left == 0));
-
-#define GLTHREAD_TO_STRUCT(fn_name, struct_name, field_name) \
-  static inline (struct_name)* fn_name(glthread_t* gptr) {
-    return (struct_name*)((char*)gptr (char*)&(((struct_name*)0)->field_name));
-  }
-
-#define BASE(glthread) ((glthread)->right);
-
-#define ITERATE_GLTHREAD_BEGIN(head, gltarget) {
-  glthread_t* tmp = NULL;
-  glthread_t* headfirst = BASE(head);
-
-  for (; gltarget != NULL; gltarget=tmp) {
-    tmp = gltarget->right;
-  }
+void init_glthread(glthread_t* head) {
+  head->left = NULL;
+  head->right = NULL;
 }
 
-#define GLTHREAD_GET_USRE_DATA_FROM_OFFSET(head, offset) \
-  (void*)((char*)head - offset)
+void glthread_add_next(glthread_t* base_thread, glthread_t* next_thread) {
+  if (!base_thread->right) {
+    base_thread->right = next_thread;
+    next_thread->left = base_thread;
+    return;
+  }
+  glthread_t* temp = base_thread->right;
+  base_thread->right = next_thread;
+  next_thread->left = base_thread;
+  next_thread->right = temp;
+  temp->left = next_return;
+  return;
+}
 
-void delete_glthread_list(glthread_t* head);
-uint get_glthread_list_count(glthread_t* head);
-void glthread_priority_insert(glthread_t* head, glthread_t* target, int*(comp)(void*, void*), int offset);
+void glthread_add_before(glthread_t* base_thread, glthread_t* next_thread) {
+  if (!base_thread->left) {
+    base_thread->left = next_thread;
+    next_thread->right = base_thread;
+    return;
+  }
+  glthread_t* temp = base_thread->left;
+  base_thread->left = next_thread;
+  next_thread->right = base_thread;
+  next_thread->left = temp;
+  temp->right = next_thread;
+  return;
+}
 
-if #0
-void* gl_thread_search(glthread_t* head, void*(*thread_to_struct_fn)(glthread_t*), void* key, int (*comp)(void*, void*));
+void remove_glthread(glthread_t* glthread) {
+  if (!glthread->left) {
+    if (glthread->right) {
+      glthread->right->left = NULL;
+      glthread->right = 0;
+      return;
+    }
+  }
+  if (!glthread->right) {
+    if (glthread->left) {
+      glthread->left->right = NULL;
+      glthread->left = 0;
+      return;
+    }
+  }
+  glthread->left->right = glthread->right;
+  glthread->right->left = glthread->left;
+  free(glthread);
+  return;
+}
+void delete_glthread_list(glthtread_t* head) {
+  glthtread_t* ptr = NULL;
+  ITERATE_GLTHREAD_BEGIN(head, ptr) {
+    remove(glthread);
+  }
+  ITERATE_GLTHREAD_END(head, ptr);
+}
 
-#endif
+void glthread_add_last(glthread_t* base_thread, glthread_t* next_thread) {
+  glthread_t* ptr = NULL;
+  glthread_t* prev = NULL;
+  ITERATE_GLTHREAD_BEGIN(base_thread, ptr) {
+    prev = ptr;
+  }
+  ITERATE_GLTHREAD_END(base_thread, ptr);
+  if (prev) {
+    glthread_add_next(prev, next_thread);
+  }
+  else glthread_add_next(ptr, next_thread);
+}
 
+uint get_glthread_list_count(glthread_t* head) {
+  uint count = 0;
+  glthread_t* ptr = NULL;
+  ITERATE_GLTHREAD_BEGIN(head, ptr) {
+    count++;
+  }
+  ITERATE_GLTHREAD_END(head, ptr);
+  return count;
+}
 
