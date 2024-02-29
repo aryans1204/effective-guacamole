@@ -9,7 +9,7 @@
 #define IF_NAME 20
 #define NODE_NAME 16
 #define MAX_INTFS_PER_NODE 20
-#define MAX_TOPO_NAME 20
+#define MAX_TOPO_NAME 32
 
 typedef struct node_ node_t;
 typedef struct link_ link_t;
