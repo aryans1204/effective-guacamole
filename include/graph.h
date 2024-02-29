@@ -3,6 +3,7 @@
 
 #include "gluethreads/glthread.h"
 #include <assert.h>
+#include <string.h>
 
 #define uint unsigned int
 
@@ -47,9 +48,30 @@ static inline node_t* get_nbr_node(interface_t* interface) {
 }
 
 static inline int get_node_intf_available_slot(node_t* node) {
-  for (int i = 0; i < MAX_INTFS_PER_NODE; i++) {
+  for (int i = 0; i < MAX_INTFS_PE
+         R_NODE; i++) {
     if (node->intfs[i] == NULL) return i;
   }
-  return -1;
+  return NULL;
 }
 
+static inline interface_t* get_node_if_by_name(node_t* node, char* if_name) {
+  interface_t* ints[MAX_INTFS_PER_NODE] = node->intfs;
+  for (int i = 0; i < MAX_INTFS_PER_NODE; i++) {
+    if (!ints[i]) return NULL;
+    if (!strncmp(ints[i]->if_name, if_name, IF_NAME)) return ints[i];
+  }
+  return NULL;
+}
+
+static inline node_t* get_node_by_node_name(graph_t* topo, char* node_name) {
+  glthread_t* head = &topo->node_list;
+  glthread_t* temp = NULL;
+  node_t* ans = NULL;
+  ITERATE_GLTHREAD_BEGIN(head, temp) {
+    ans = graph_glue_to_node(temp);
+    if (!strncmp(ans->node_name, node_name, NODE_NAME)) return ans; 
+  }
+  ITERATE_GLTHREAD_END(head, temp);
+  return NULL;
+}
