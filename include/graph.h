@@ -32,6 +32,7 @@ struct node_ {
   interface_t *intfs[MAX_INTFS_PER_NODE];
   glthread_t glue_node;
 };
+GLTHREAD_TO_STRUCT(graph_glue_to_node, node_t, glue_node);
 
 typedef struct graph_ {
   char topology_name[MAX_TOPO_NAME];
